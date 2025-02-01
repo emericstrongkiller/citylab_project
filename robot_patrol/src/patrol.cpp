@@ -51,9 +51,39 @@ private:
   float max_dist_index = 0;
   bool too_close = false;
 
-  void laser_callback(const sensor_msgs::msg::LaserScan msg) {}
+  void laser_callback(const sensor_msgs::msg::LaserScan msg) {
+    for (int i = 270; i < 390; i++) {
+      if (msg.ranges[i] < 0.35) {
+        too_close = true;
+        break;
+      } else {
+        too_close = false;
+      }
+    }
 
-  void cmd_vel_callback() {}
+    // update max laser distance
+    for (int i = 165; i < 495; i++) {
+      if (!std::isinf(msg.ranges[i]) && msg.ranges[i] > max_laser_dist) {
+        max_laser_dist = msg.ranges[i];
+        max_dist_index = i;
+      }
+    }
+
+    // calculate angle to attain
+    direction_ = -1 * (msg.angle_increment * (330 - max_dist_index));
+  }
+
+  void cmd_vel_callback() {
+    if (too_close == true) {
+      move_data.linear.x = 0.1;
+      move_data.angular.z = direction_ / 2;
+      cmd_vel_pub->publish(move_data);
+    } else {
+      move_data.linear.x = 0.1;
+      move_data.angular.z = 0.0;
+      cmd_vel_pub->publish(move_data);
+    }
+  }
 };
 
 int main(int argc, char *argv[]) {

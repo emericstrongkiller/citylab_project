@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(action_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -26,6 +27,7 @@ endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetDirection.srv"
+  "action/GoToPose.action"
   DEPENDENCIES sensor_msgs # Add packages that the custom interfaces depend on
 )
 

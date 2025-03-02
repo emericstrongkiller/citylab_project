@@ -16,6 +16,7 @@ public:
     srv_ = create_service<GetDirection>(
         "/direction_service",
         std::bind(&DirectionService::direction_service_callback, this, _1, _2));
+    RCLCPP_INFO(this->get_logger(), "direction Server Ready");
   }
 
 private:
@@ -28,6 +29,9 @@ private:
   void direction_service_callback(
       const std::shared_ptr<GetDirection::Request> request,
       const std::shared_ptr<GetDirection::Response> response) {
+
+    RCLCPP_INFO(this->get_logger(), "direction Requested");
+
     // treats laser data and answers forward,right or left
     // 165->275 : total_dist_sec_right
     // 275->385 : total_dist_sec_front
@@ -70,6 +74,7 @@ private:
       response->direction = "left";
       break;
     }
+    RCLCPP_INFO(this->get_logger(), "Service Completed, gave proper direction");
   }
 };
 

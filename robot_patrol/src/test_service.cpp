@@ -1,4 +1,5 @@
 #include "custom_interfaces/srv/get_direction.hpp"
+#include "rclcpp/executors.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 
@@ -12,6 +13,7 @@ public:
         "/scan", 10, std::bind(&LaserSub::laser_callback, this, _1));
     client = this->create_client<custom_interfaces::srv::GetDirection>(
         "/direction_service");
+    RCLCPP_WARN(this->get_logger(), "direction Client Ready");
   }
 
 private:
@@ -36,6 +38,7 @@ private:
     auto result_future = client->async_send_request(
         request,
         std::bind(&LaserSub::response_callback, this, std::placeholders::_1));
+    RCLCPP_WARN(this->get_logger(), "direction requested to direction server");
 
     // Now check for the response after a timeout of 1 second
     auto status = result_future.wait_for(1s);
@@ -50,8 +53,10 @@ private:
           future) {
     // Get response value
     auto response = future.get();
-    RCLCPP_INFO(this->get_logger(), "Direction chosen: %s",
+    RCLCPP_INFO(this->get_logger(),
+                "Direction Server responded\nDirection chosen: %s",
                 response->direction.c_str());
+    rclcpp::shutdown();
   }
 
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr subscription_;
@@ -63,8 +68,8 @@ private:
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<LaserSub>());
-  rclcpp::shutdown();
+  auto node = std::make_shared<LaserSub>();
+  rclcpp::spin(node);
   return 0;
 }
 

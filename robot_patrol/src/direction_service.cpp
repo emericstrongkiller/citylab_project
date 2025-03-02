@@ -22,7 +22,7 @@ private:
   rclcpp::Service<GetDirection>::SharedPtr srv_;
 
   // laser part
-  float laser_ranges[720]; // current laser scan [0->2pi]rad
+  float laser_ranges[660]; // current laser scan [0->2pi]rad
   float total_dists_sec[3];
 
   void direction_service_callback(
@@ -36,14 +36,30 @@ private:
       laser_ranges[i] = request->laser_data.ranges[i];
     }
 
+    total_dists_sec[0] = 0;
+    total_dists_sec[1] = 0;
+    total_dists_sec[2] = 0;
+
+    /*
+        for (int i = 165; i < 275; i++) {
+          total_dists_sec[0] += laser_ranges[i];
+          total_dists_sec[1] += laser_ranges[i + 110];
+          total_dists_sec[2] += laser_ranges[i + 110 * 2];
+        }
+    */
+
     for (int i = 165; i < 275; i++) {
-      total_dists_sec[0] += laser_ranges[i];
-      total_dists_sec[1] += laser_ranges[i + 110];
-      total_dists_sec[2] += laser_ranges[i + 110 * 2];
+      total_dists_sec[0] += laser_ranges[i]; // Right (165-275)
+    }
+    for (int i = 275; i < 385; i++) {
+      total_dists_sec[1] += laser_ranges[i]; // Front (275-385)
+    }
+    for (int i = 385; i < 495; i++) {
+      total_dists_sec[2] += laser_ranges[i]; // Left (385-495)
     }
 
     switch (distance(total_dists_sec,
-                     max_element(total_dists_sec, total_dists_sec + 2))) {
+                     max_element(total_dists_sec, total_dists_sec + 3))) {
     case 0:
       response->direction = "right";
       break;

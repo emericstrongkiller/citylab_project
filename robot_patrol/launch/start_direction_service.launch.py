@@ -12,7 +12,6 @@ def generate_launch_description():
             output='screen',
         ),
 
-        '''
         Node(
             package='rviz2',
             namespace='',
@@ -21,5 +20,4 @@ def generate_launch_description():
             output='screen',
             arguments=['-d', os.path.join(get_package_share_directory('robot_patrol'), 'config', 'robot_config.rviz')]
         )
-        '''
     ])

@@ -48,12 +48,22 @@ private:
 
   float direction_;
   float max_laser_dist = 0;
-  float max_dist_index = 0;
+  int max_dist_index = 0;
   bool too_close = false;
+  bool first_scan_recieved = false;
 
   void laser_callback(const sensor_msgs::msg::LaserScan msg) {
-    for (int i = 270; i < 390; i++) {
-      if (msg.ranges[i] < 0.35) {
+    if (!first_scan_recieved) {
+      laser_data.ranges.resize(msg.ranges.size());
+      first_scan_recieved = true;
+    }
+
+    laser_data.ranges = msg.ranges;
+
+    // Check proximity threshold
+    for (size_t i = msg.ranges.size() * 3 / 8; i < msg.ranges.size() * 5 / 8;
+         i++) {
+      if (laser_data.ranges[i] < 0.35) {
         too_close = true;
         break;
       } else {
@@ -62,9 +72,11 @@ private:
     }
 
     // update max laser distance
-    for (int i = 165; i < 495; i++) {
-      if (!std::isinf(msg.ranges[i]) && msg.ranges[i] > max_laser_dist) {
-        max_laser_dist = msg.ranges[i];
+    for (size_t i = laser_data.ranges.size() / 4;
+         i < laser_data.ranges.size() * 3 / 4; i++) {
+      if (!std::isinf(laser_data.ranges[i]) &&
+          laser_data.ranges[i] > max_laser_dist) {
+        max_laser_dist = laser_data.ranges[i];
         max_dist_index = i;
       }
     }
@@ -77,6 +89,7 @@ private:
     if (too_close == true) {
       move_data.linear.x = 0.1;
       move_data.angular.z = direction_ / 2;
+      RCLCPP_INFO(this->get_logger(), "direction: %f", direction_);
       cmd_vel_pub->publish(move_data);
     } else {
       move_data.linear.x = 0.1;

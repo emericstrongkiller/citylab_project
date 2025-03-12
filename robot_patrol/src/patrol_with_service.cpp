@@ -73,9 +73,9 @@ private:
     }
 
     // Check proximity threshold
-    for (size_t i = msg->ranges.size() * 3 / 8; i < msg->ranges.size() * 5 / 8;
-         i++) {
-      if (laser_data.ranges[i] < 0.35 && !service_request_sent) {
+    for (size_t i = msg->ranges.size() * 3.5 / 8;
+         i < msg->ranges.size() * 4.5 / 8; i++) {
+      if (msg->ranges[i] < 0.35 && !service_request_sent) {
         service_request_sent = true;
         too_close = true;
         request =
@@ -95,7 +95,7 @@ private:
   void cmd_vel_callback() {
     if (too_close == true) {
       move_data.linear.x = 0.1;
-      move_data.angular.z = direction_;
+      move_data.angular.z = direction_ * 3;
       // RCLCPP_INFO(this->get_logger(), "direction: %f", direction_);
       cmd_vel_pub->publish(move_data);
     } else {

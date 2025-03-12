@@ -62,6 +62,13 @@ private:
       total_dists_sec[2] += laser_ranges[i]; // Left (385-495)
     }
 
+    RCLCPP_INFO(this->get_logger(), "total_dists_sec[0]: %f",
+                total_dists_sec[0]);
+    RCLCPP_INFO(this->get_logger(), "total_dists_sec[1]: %f",
+                total_dists_sec[1]);
+    RCLCPP_INFO(this->get_logger(), "total_dists_sec[2]: %f",
+                total_dists_sec[2]);
+
     switch (distance(total_dists_sec,
                      max_element(total_dists_sec, total_dists_sec + 3))) {
     case 0:

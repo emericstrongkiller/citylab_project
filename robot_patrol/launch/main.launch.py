@@ -5,10 +5,10 @@ import os
 
 def generate_launch_description():
     return LaunchDescription([
-        Node(
+       Node(
             package='robot_patrol',
-            executable='patrol_node',
-            name='patrol_node',
+            executable='direction_service_node',
+            name='direction_service_node',
             output='screen',
         ),
 
